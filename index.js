@@ -1,18 +1,14 @@
-const http = require('http')
+const express = require('express')
 
-const handlers = require('./handlers')
 const config = require('./config/config')
 const database = require('./config/database.config')
 
 const port = 3000
 
-let environment = process.env.NODE_ENV || 'development'
-database(config[environment])
+let app = express()
+let environment = process.env.NODE_environment || 'development'
 
-http.createServer((req, res) => {
-  for (let handler of handlers) {
-    if (!handler(req, res)) {
-      break
-    }
-  }
-}).listen(port)
+database(config[environment])
+require('./config/express')(app, config[environment])
+require('./config/routes')(app)
+app.listen(port)
