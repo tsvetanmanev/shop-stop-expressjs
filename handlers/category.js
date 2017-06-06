@@ -5,9 +5,9 @@ module.exports.addGet = (req, res) => {
 }
 
 module.exports.addPost = (req, res) => {
-  let categoryObj = req.body
+  let category = req.body
 
-  Category.create(categoryObj).then(() => {
+  Category.create(category).then(() => {
     res.redirect('/')
   })
 }

@@ -5,7 +5,7 @@ const Product = require('../models/Product')
 const Category = require('../models/Category')
 
 module.exports.addGet = (req, res) => {
-  let filePath = path.normalize(path.join(__dirname, '../views/products/add.html'))
+  let filePath = path.normalize(path.join(__dirname, '../views/product/add.html'))
 
   fs.readFile(filePath, (err, data) => {
     if (err) {
