@@ -2,7 +2,7 @@ extends ../layout.pug
 
 block content
   form.form.center-form(method='post', enctype='multipart/form-data')
-    h2 Add Product
+    h2 Edit Product
     .form-group
       label(for='name') Name 
       input#name.input-field(name='name', type='text', value=product.name)
@@ -23,6 +23,6 @@ block content
             option(value=`${category._id}` selected)= category.name
           else
             option(value=`${category._id}`)=category.name
-            
+
     .form-group
       input.form-btn.btn(type='submit', value='Add')

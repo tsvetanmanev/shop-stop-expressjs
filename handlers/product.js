@@ -81,3 +81,35 @@ module.exports.editPost = (req, res) => {
     }
   })
 }
+
+module.exports.deleteGet = (req, res) => {
+  let id = req.params.id
+
+  Product.findById(id).then((product) => {
+    if (!product) {
+      res.sendStatus(404)
+      return
+    }
+
+    res.render('product/delete', {product: product})
+  })
+}
+
+module.exports.deletePost = (req, res) => {
+  let id = req.params.id
+  Product.findById(id).then((product) => {
+    Category.findById(product.category).then((category) => {
+      console.log(category)
+      let index = category.products.indexOf(product._id)
+      if (index >= 0) {
+        console.log(category.products)
+        category.products.splice(index, 1)
+        category.save()
+      }
+
+      product.remove().then(() => {
+        res.redirect(`/?success=${encodeURIComponent('Product was deleted successfully!')}`)
+      })
+    })
+  })
+}
