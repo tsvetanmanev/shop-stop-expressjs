@@ -22,6 +22,11 @@ body
             a(href='/user/register') Register
           li.align-right
             a(href='/user/login') Login
+  if error
+    h2.error-msg= error
+  else if success
+    h2.success-msg= success
+
   main
     block content
   footer
