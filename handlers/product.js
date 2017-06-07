@@ -87,8 +87,7 @@ module.exports.deleteGet = (req, res) => {
 
   Product.findById(id).then((product) => {
     if (!product) {
-      res.sendStatus(404)
-      return
+      res.redirect(`/?error=${encodeURIComponent('error=Product was not found!')}`)
     }
 
     res.render('product/delete', {product: product})
@@ -98,6 +97,10 @@ module.exports.deleteGet = (req, res) => {
 module.exports.deletePost = (req, res) => {
   let id = req.params.id
   Product.findById(id).then((product) => {
+    if (!product) {
+      res.redirect(`/?error=${encodeURIComponent('error=Product was not found!')}`)
+    }
+
     Category.findById(product.category).then((category) => {
       console.log(category)
       let index = category.products.indexOf(product._id)
@@ -111,5 +114,16 @@ module.exports.deletePost = (req, res) => {
         res.redirect(`/?success=${encodeURIComponent('Product was deleted successfully!')}`)
       })
     })
+  })
+}
+
+module.exports.buyGet = (req, res) => {
+  let id = req.params.id
+  Product.findById(id).then((product) => {
+    if (!product) {
+      res.redirect(`/?error=${encodeURIComponent('error=Product was not found!')}`)
+    }
+
+    res.render('product/buy', {product: product})
   })
 }
