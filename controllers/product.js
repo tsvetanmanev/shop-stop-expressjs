@@ -1,22 +1,29 @@
 const Product = require('../models/Product')
 const Category = require('../models/Category')
+const User = require('../models/User')
 
 module.exports.addGet = (req, res) => {
   Category.find()
     .then((categories) => {
-      res.render('product/add', {categories: categories})
+      res.render('product/add', { categories: categories })
     })
 }
 
-module.exports.addPost = (req, res, next) => {
+module.exports.addPost = (req, res) => {
   let productObj = req.body
   productObj.image = '\\' + req.file.path
+  productObj.creator = req.user._id
 
   Product.create(productObj).then((product) => {
     Category.findById(product.category).then((category) => {
       category.products.push(product._id)
       category.save()
     })
+    User.findById(product.creator).then((user) => {
+      user.createdProducts.push(product._id)
+      user.save()
+    })
+
     res.redirect('/')
   })
 }
@@ -28,13 +35,16 @@ module.exports.editGet = (req, res) => {
       res.sendStatus(404)
       return
     }
-
-    Category.find().then((categories) => {
-      res.render('product/edit', {
-        product: product,
-        categories: categories
+    if (product.creator.equals(req.user._id) || req.user.roles.indexOf('Admin') >= 0) {
+      Category.find().then((categories) => {
+        res.render('product/edit', {
+          product: product,
+          categories: categories
+        })
       })
-    })
+    } else {
+      res.redirect(`/?error=${encodeURIComponent('Product is not yours to edit!')}`)
+    }
   })
 }
 
@@ -44,7 +54,7 @@ module.exports.editPost = (req, res) => {
 
   Product.findById(id).then((product) => {
     if (!product) {
-      res.redirect(`/?error=${encodeURIComponent('error=Product was not found!')}`)
+      res.redirect(`/?error=${encodeURIComponent('Product was not found!')}`)
     }
 
     product.name = editedProduct.name
@@ -87,10 +97,14 @@ module.exports.deleteGet = (req, res) => {
 
   Product.findById(id).then((product) => {
     if (!product) {
-      res.redirect(`/?error=${encodeURIComponent('error=Product was not found!')}`)
+      res.redirect(`/?error=${encodeURIComponent('Product was not found!')}`)
+      return
     }
-
-    res.render('product/delete', {product: product})
+    if (!(product.creator.equals(req.user._id) || req.user.roles.indexOf('Admin') >= 0)) {
+      res.redirect(`/?error=${encodeURIComponent('Product is not yours to delete!')}`)
+      return
+    }
+    res.render('product/delete', { product: product })
   })
 }
 
@@ -98,7 +112,11 @@ module.exports.deletePost = (req, res) => {
   let id = req.params.id
   Product.findById(id).then((product) => {
     if (!product) {
-      res.redirect(`/?error=${encodeURIComponent('error=Product was not found!')}`)
+      res.redirect(`/?error=${encodeURIComponent('Product was not found!')}`)
+    }
+
+    if (!(product.creator.equals(req.user._id) || req.user.roles.indexOf('Admin') >= 0)) {
+      res.redirect(`/?error=${encodeURIComponent('Product is not yours to delete!')}`)
     }
 
     Category.findById(product.category).then((category) => {
@@ -121,9 +139,28 @@ module.exports.buyGet = (req, res) => {
   let id = req.params.id
   Product.findById(id).then((product) => {
     if (!product) {
-      res.redirect(`/?error=${encodeURIComponent('error=Product was not found!')}`)
+      res.redirect(`/?error=${encodeURIComponent('Product was not found!')}`)
     }
 
-    res.render('product/buy', {product: product})
+    res.render('product/buy', { product: product })
+  })
+}
+
+module.exports.buyPost = (req, res) => {
+  let productId = req.params.id
+
+  Product.findById(productId).then((product) => {
+    if (product.buyer) {
+      let error = `error=${encodeURIComponent('Product was already bought!')}`
+      res.redirect(`/?${error}`)
+      return
+    }
+    product.buyer = req.user._id
+    product.save().then(() => {
+      req.user.boughtProducts.push(productId)
+      req.user.save().then(() => {
+        res.redirect('/')
+      })
+    })
   })
 }

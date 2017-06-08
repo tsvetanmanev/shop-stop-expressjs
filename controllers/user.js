@@ -69,3 +69,8 @@ module.exports.loginPost = (req, res) => {
     }
   })
 }
+
+module.exports.logoutPost = (req, res) => {
+  req.logout()
+  res.redirect('/')
+}

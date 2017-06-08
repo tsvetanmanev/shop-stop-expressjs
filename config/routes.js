@@ -1,4 +1,5 @@
 const controllers = require('../controllers')
+const auth = require('./auth')
 const multer = require('multer')
 
 let upload = multer({dest: './content/images'})
@@ -12,19 +13,22 @@ module.exports = (app) => {
   app.get('/user/login', controllers.user.loginGet)
   app.post('/user/login', controllers.user.loginPost)
 
-  app.get('/product/add', controllers.product.addGet)
-  app.post('/product/add', upload.single('image'), controllers.product.addPost)
+  app.post('/user/logout', controllers.user.logoutPost)
 
-  app.get('/product/edit/:id', controllers.product.editGet)
-  app.post('/product/edit/:id', upload.single('image'), controllers.product.editPost)
+  app.get('/product/add', auth.isAuthenticated, controllers.product.addGet)
+  app.post('/product/add', auth.isAuthenticated, upload.single('image'), controllers.product.addPost)
 
-  app.get('/product/delete/:id', controllers.product.deleteGet)
-  app.post('/product/delete/:id', controllers.product.deletePost)
+  app.get('/product/edit/:id', auth.isAuthenticated, controllers.product.editGet)
+  app.post('/product/edit/:id', auth.isAuthenticated, upload.single('image'), controllers.product.editPost)
 
-  app.get('/product/buy/:id', controllers.product.buyGet)
+  app.get('/product/delete/:id', auth.isAuthenticated, controllers.product.deleteGet)
+  app.post('/product/delete/:id', auth.isAuthenticated, controllers.product.deletePost)
 
-  app.get('/category/add', controllers.category.addGet)
-  app.post('/category/add', controllers.category.addPost)
+  app.get('/product/buy/:id', auth.isAuthenticated, controllers.product.buyGet)
+  app.post('/product/buy/:id', auth.isAuthenticated, controllers.product.buyPost)
+
+  app.get('/category/add', auth.isInRole('Admin'), controllers.category.addGet)
+  app.post('/category/add', auth.isInRole('Admin'), controllers.category.addPost)
 
   app.get('/category/:category/products', controllers.category.productByCategory)
 }

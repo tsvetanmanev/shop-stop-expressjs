@@ -1,14 +1,20 @@
 let Category = require('../models/Category')
+let User = require('../models/User')
 
 module.exports.addGet = (req, res) => {
   res.render('category/add')
 }
 
 module.exports.addPost = (req, res) => {
-  let category = req.body
+  let categoryObj = req.body
+  categoryObj.creator = req.user._id
 
-  Category.create(category).then(() => {
-    res.redirect('/')
+  Category.create(categoryObj).then((category) => {
+    User.findById(category.creator).then((user) => {
+      user.createdCategories.push(category._id)
+
+      res.redirect('/')
+    })
   })
 }
 
