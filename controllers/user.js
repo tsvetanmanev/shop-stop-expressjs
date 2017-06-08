@@ -46,3 +46,9 @@ module.exports.registerPost = (req, res) => {
       res.render('user/register', reqUser)
     })
 }
+
+module.exports.loginGet = (req, res) => {
+  res.render('user/login')
+}
+
+module.exports.loginPost =
