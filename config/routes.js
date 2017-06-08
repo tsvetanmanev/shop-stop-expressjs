@@ -6,6 +6,9 @@ let upload = multer({dest: './content/images'})
 module.exports = (app) => {
   app.get('/', controllers.home.index)
 
+  app.get('/user/register', controllers.user.registerGet)
+  app.post('/user/register', controllers.user.registerPost)
+
   app.get('/product/add', controllers.product.addGet)
   app.post('/product/add', upload.single('image'), controllers.product.addPost)
 
