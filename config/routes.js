@@ -10,6 +10,7 @@ module.exports = (app) => {
   app.post('/user/register', controllers.user.registerPost)
 
   app.get('/user/login', controllers.user.loginGet)
+  app.post('/user/login', controllers.user.loginPost)
 
   app.get('/product/add', controllers.product.addGet)
   app.post('/product/add', upload.single('image'), controllers.product.addPost)

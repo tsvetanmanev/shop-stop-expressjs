@@ -51,4 +51,21 @@ module.exports.loginGet = (req, res) => {
   res.render('user/login')
 }
 
-module.exports.loginPost =
+module.exports.loginPost = (req, res) => {
+  let reqUser = req.body
+
+  User.findOne({username: reqUser.username}).then(user => {
+    if (!user || !user.authenticate(reqUser.password)) {
+      res.render('user/login', {error: 'Invalid credentials'})
+    } else {
+      req.logIn(user, (error, user) => {
+        if (error) {
+          res.render('user/login', {error: 'Authentication not working!'})
+          return
+        }
+
+        res.redirect('/')
+      })
+    }
+  })
+}
